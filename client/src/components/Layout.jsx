@@ -81,7 +81,7 @@ const HeaderFooterLayout = () => {
 
                 <button
                   onClick={() => navigate("/profile")}
-                  className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/30 hover:bg-white/20 transition"
+                  className="flex items-center gap-2 px-3 py-2 rounded-full text-white bg-white/30 hover:bg-white/20 transition"
                 >
                   <User size={18} />
                   <span className="text-sm">
@@ -141,7 +141,7 @@ const HeaderFooterLayout = () => {
                       setIsOpen(false);
                       navigate("/profile");
                     }}
-                    className="w-full text-white text-left px-4 py-3 bg-white/10 rounded-lg"
+                    className="w-full text-white text-left px-4 py-3 text-white bg-white/30 rounded-lg"
                   >
                     {user.name}
                   </button>
