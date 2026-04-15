@@ -1,96 +1,173 @@
-💪 Calisthenics E-Commerce Platform
+# 💪 Calisthenics E-Commerce Platform
 
-A full-stack web application that combines fitness + eCommerce, allowing users to explore calisthenics content, track progress, and purchase fitness-related products.
+A full-stack web application that combines **fitness tracking + eCommerce**, enabling users to train with calisthenics and shop fitness equipment.
 
-🚀 Features
-🏋️‍♂️ Fitness (Calisthenics)
-User authentication (Login/Register)
-Personalized dashboard
-Upload and track progress (photos/videos)
-Exercise library (beginner → advanced)
-AI-based suggestions (optional if implemented)
-Attendance / activity tracking
-🛒 E-Commerce
-Browse products (equipment, accessories)
-Add to cart / remove from cart
-Secure checkout system
-Order history
-Product search & filters
-🔐 Authentication & Security
-JWT-based authentication (cookies)
-Protected routes
-Secure API handling
-🛠️ Tech Stack
-Frontend
-React.js (Vite)
-Tailwind CSS
-Axios
-Backend
-Node.js
-Express.js
-Database
-MongoDB / MySQL (choose what you used)
-Other Tools
-Cloudinary / Multer (for image uploads)
-JWT (Authentication)
-Git & GitHub
-📂 Project Structure
+---
+
+## 🚀 Live Demo
+
+- Frontend: https://your-frontend-url.vercel.app  
+- Backend: https://your-backend-url.onrender.com  
+
+---
+
+## ✨ Features
+
+### 🏋️‍♂️ Calisthenics
+- User Authentication (JWT + Cookies)
+- Dashboard & Profile Management
+- Progress Tracking (Image Upload)
+- Exercise Levels (Beginner → Advanced)
+- Attendance Tracking
+
+### 🛒 E-Commerce
+- Browse Products
+- Add / Remove from Cart
+- Order Management
+- Search & Filters
+
+### 🤖 Advanced (Optional)
+- AI Recommendations
+- Face Recognition Attendance
+- Voice Assistant
+
+---
+
+## 🛠️ Tech Stack
+
+**Frontend**
+- React.js (Vite)
+- Tailwind CSS
+- Axios
+
+**Backend**
+- Node.js
+- Express.js
+
+**Database**
+- MongoDB / MySQL
+
+**Tools**
+- JWT Authentication
+- Cloudinary / Multer
+- Vercel (Frontend)
+- Render (Backend)
+
+---
+
+## 📂 Project Structure
 root/
-│── client/        # Frontend (React)
-│── server/        # Backend (Node + Express)
+│── client/ # Frontend
+│── server/ # Backend
 │── README.md
-⚙️ Installation & Setup
-1️⃣ Clone the repository
-git clone https://github.com/your-username/your-repo-name.git
-cd your-repo-name
-2️⃣ Setup Backend
-cd server
-npm install
 
-Create a .env file in /server:
+---
 
+## ⚙️ Environment Variables
+
+### Frontend (`client/.env`)
+
+VITE_API_URL=https://your-backend-url.onrender.com
+
+
+### Backend (`server/.env`)
 PORT=5000
-MONGO_URI=your_mongo_url
+MONGO_URI=your_mongodb_url
 JWT_SECRET=your_secret_key
 
-Run backend:
+---
 
+## 🧑‍💻 Installation & Setup
+
+### Clone Repository
+git clone https://github.com/your-username/your-repo-name.git
+
+cd your-repo-name
+
+### Backend Setup
+
+cd server
+npm install
 npm run dev
-3️⃣ Setup Frontend
+
+
+### Frontend Setup
+
 cd client
 npm install
 npm run dev
-🌐 API Endpoints (Sample)
-Method	Endpoint	Description
-POST	/api/auth/login	User login
-POST	/api/auth/register	User register
-GET	/api/products	Get all products
-POST	/api/cart	Add to cart
-📸 Screenshots
 
-Add your UI screenshots here
 
-✨ Future Enhancements
-🤖 AI workout assistant
-📱 Mobile responsiveness improvements
-💳 Payment gateway integration (Stripe/Razorpay)
-🧠 Recommendation system
-🎤 Voice-based AI trainer
-🤝 Contributing
+---
 
-Contributions are welcome!
+## 🚀 Deployment
 
-fork → clone → create branch → commit → push → PR
-🧑‍💻 Author
+### Vercel (Frontend)
+Create `vercel.json`:
 
-Abhinav Kumar Chaudhary
+{
+"rewrites": [
+{ "source": "/(.*)", "destination": "/" }
+]
+}
 
-Full Stack Developer
-Passionate about Fitness + Tech
-📄 License
 
-This project is licensed under the MIT License.
+### Render (Backend)
+- Create Web Service
+- Add environment variables
+- Start command:
 
-⭐ Show Your Support
+npm start
 
-If you like this project, give it a ⭐ on GitHub!
+
+---
+
+## 🔌 API Endpoints
+
+| Method | Endpoint             | Description        |
+|--------|---------------------|--------------------|
+| POST   | /api/auth/register  | Register user      |
+| POST   | /api/auth/login     | Login user         |
+| GET    | /api/products       | Get products       |
+| POST   | /api/cart           | Add to cart        |
+
+---
+
+## 📸 Screenshots
+
+(Add your screenshots here)
+
+---
+
+## 🔮 Future Improvements
+
+- Payment Integration (Stripe / Razorpay)
+- Mobile Optimization
+- AI Workout Assistant
+- Analytics Dashboard
+
+---
+
+## 🤝 Contributing
+
+
+fork → clone → create branch → commit → push → pull request
+
+
+---
+
+## 🧑‍💻 Author
+
+**Abhinav Kumar Chaudhary**
+
+---
+
+## 📄 License
+
+MIT License
+
+---
+
+## ⭐ Support
+
+Give this project a ⭐ if you like it!
