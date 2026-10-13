@@ -39,37 +39,148 @@ export const createProduct = async (req, res) => {
 };
 
 // get products
+
 export const getProducts = async (req, res) => {
   try {
-    // 1️⃣ Read query params
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 8;
-    const skip = (page - 1) * limit;
+    const {
+      page = 1,
+      limit = 8,
+      search = "",
+      category = "",
+      brand = "",
+      minPrice,
+      maxPrice,
+      sort = "newest",
+    } = req.query;
 
-    // 2️⃣ Count total products
-    const totalProducts = await Product.countDocuments();
+    const currentPage = Math.max(1, parseInt(page, 10) || 1);
+    const pageLimit = Math.min(
+      50,
+      Math.max(1, parseInt(limit, 10) || 8)
+    );
 
-    // 3️⃣ Fetch paginated products
-    const products = await Product.find()
-      .skip(skip)
-      .limit(limit)
-      .sort({ createdAt: -1 });
+    // Build the database filter
+    const filter = {};
 
-    // 4️⃣ Send paginated response
+    if (search.trim()) {
+      const escapedSearch = search.trim().replace(
+        /[.*+?^${}()|[\]\\]/g,
+        "\\$&"
+      );
+
+      filter.title = {
+        $regex: escapedSearch,
+        $options: "i",
+      };
+    }
+
+    if (category.trim()) {
+      filter.category = category.trim();
+    }
+
+    if (brand.trim()) {
+      const escapedBrand = brand.trim().replace(
+        /[.*+?^${}()|[\]\\]/g,
+        "\\$&"
+      );
+
+      filter.brand = {
+        $regex: escapedBrand,
+        $options: "i",
+      };
+    }
+
+    // Validate price filters
+    const priceFilter = {};
+
+    if (minPrice !== undefined && minPrice !== "") {
+      const min = Number(minPrice);
+
+      if (!Number.isFinite(min) || min < 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid minimum price",
+        });
+      }
+
+      priceFilter.$gte = min;
+    }
+
+    if (maxPrice !== undefined && maxPrice !== "") {
+      const max = Number(maxPrice);
+
+      if (!Number.isFinite(max) || max < 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid maximum price",
+        });
+      }
+
+      priceFilter.$lte = max;
+    }
+
+    if (
+      priceFilter.$gte !== undefined &&
+      priceFilter.$lte !== undefined &&
+      priceFilter.$gte > priceFilter.$lte
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Minimum price cannot exceed maximum price",
+      });
+    }
+
+    if (Object.keys(priceFilter).length > 0) {
+      filter.price = priceFilter;
+    }
+
+    // Sorting
+    const sortOptions = {
+      newest: { createdAt: -1 },
+      oldest: { createdAt: 1 },
+      price_asc: { price: 1 },
+      price_desc: { price: -1 },
+      name_asc: { title: 1 },
+      name_desc: { title: -1 },
+    };
+
+    const sortBy = sortOptions[sort] || sortOptions.newest;
+    const skip = (currentPage - 1) * pageLimit;
+
+    // Count only matching products
+    const [products, totalProducts, categories, brands] =
+      await Promise.all([
+        Product.find(filter)
+          .sort(sortBy)
+          .skip(skip)
+          .limit(pageLimit),
+
+        Product.countDocuments(filter),
+
+        Product.distinct("category"),
+
+        Product.distinct("brand"),
+      ]);
+
     res.json({
       success: true,
       products,
-      currentPage: page,
-      totalPages: Math.ceil(totalProducts / limit),
+      currentPage,
+      totalPages: Math.ceil(totalProducts / pageLimit),
       totalProducts,
+      categories: categories.filter(Boolean).sort(),
+      brands: brands.filter(Boolean).sort(),
     });
   } catch (err) {
+    console.error("Error fetching products:", err);
+
     res.status(500).json({
       success: false,
-      error: err.message,
+      message: "Failed to fetch products",
     });
   }
 };
+
 
 // GET single product
 export const getProductById = async (req, res) => {

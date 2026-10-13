@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import EquipmentSearchFilter from "../components/equipment/EquipmentSearchFilter";
 import {
   Dumbbell,
   Activity,
@@ -19,6 +20,18 @@ const Equipment = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const [filters, setFilters] = useState({
+  search: "",
+  category: "",
+  brand: "",
+  minPrice: "",
+  maxPrice: "",
+  sort: "newest",
+});
+
+const [categories, setCategories] = useState([]);
+const [brands, setBrands] = useState([]);
+
   // 🔹 Pagination state
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -27,34 +40,58 @@ const Equipment = () => {
   const API_URL = `${import.meta.env.VITE_API_URL}/api/products`;
 
   // Fetch products (paginated)
-  const fetchProducts = async (pageNumber = 1) => {
-    try {
-      setLoading(true);
-      setError(null);
+ const fetchProducts = async (pageNumber = 1) => {
+  try {
+    setLoading(true);
+    setError(null);
 
-      const response = await fetch(
-        `${API_URL}?page=${pageNumber}&limit=${limit}`
-      );
-      const data = await response.json();
+    const params = new URLSearchParams({
+      page: String(pageNumber),
+      limit: String(limit),
+      ...filters,
+    });
 
-      if (data.success) {
-        setProducts(data.products);
-        setPage(data.currentPage);
-        setTotalPages(data.totalPages);
-      } else {
-        setProducts([]);
+    // Omit empty optional filters
+    Object.keys(filters).forEach((key) => {
+      if (filters[key] === "") {
+        params.delete(key);
       }
-    } catch (err) {
-      console.error("Error fetching products:", err);
-      setError("Failed to load products. Please try again later.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    });
 
-  useEffect(() => {
-    fetchProducts(page);
-  }, [page]);
+    const response = await fetch(`${API_URL}?${params}`);
+
+    if (!response.ok) {
+      throw new Error(`Request failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (!data.success) {
+      throw new Error(data.message || "Unable to fetch products");
+    }
+
+    setProducts(data.products);
+    setPage(data.currentPage);
+    setTotalPages(data.totalPages);
+    setCategories(data.categories || []);
+    setBrands(data.brands || []);
+  } catch (err) {
+    console.error("Error fetching products:", err);
+    setError("Failed to load products. Please try again later.");
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+const handleFilterChange = (nextFilters) => {
+  setPage(1);
+  setFilters(nextFilters);
+};
+
+useEffect(() => {
+  fetchProducts(page);
+}, [page, filters]);
 
   // Scroll to top on page change
   useEffect(() => {
@@ -155,6 +192,24 @@ const handleCheckout = async () => {
         <ShoppingCart size={20} />
         <span>Cart ({cart.length})</span>
       </button>
+
+      <EquipmentSearchFilter
+  filters={filters}
+  onFilterChange={handleFilterChange}
+  categories={categories}
+  brands={brands}
+/> 
+
+  {!loading && !error && products.length === 0 && (
+  <div className="py-16 text-center">
+    <h3 className="text-xl font-semibold text-gray-800">
+      No equipment found
+    </h3>
+    <p className="mt-2 text-gray-500">
+      Try changing your search or filters.
+    </p>
+  </div>
+)}
       {/* Loading */}
       {loading && (
         <div className="flex flex-col items-center py-20">
