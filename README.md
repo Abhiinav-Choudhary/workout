@@ -6,8 +6,8 @@ A full-stack web application that combines **fitness tracking + eCommerce**, ena
 
 ## 🚀 Live Demo
 
-- Frontend: https://your-frontend-url.vercel.app  
-- Backend: https://your-backend-url.onrender.com  
+- Frontend: [https://your-frontend-url.vercel.app  ](https://workout-mauve.vercel.app/)
+- Backend: [https://your-backend-url.onrender.com ](https://workout-backend-w760.onrender.com) 
 
 ---
 
