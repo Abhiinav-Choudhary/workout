@@ -1,6 +1,9 @@
+import "dotenv/config";
+import crypto from "crypto";
 import User from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 import admin from "../config/firebaseAdmin.js";
+import { sendPasswordResetEmail } from "../config/mailer.js";
 
 // Generate JWT Token
 const generateToken = (userId) => {
@@ -69,6 +72,9 @@ export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+//     console.log("Backend email received:", email);
+// console.log("Backend password exists:", typeof password === "string");
+
     // Validate input
     if (!email || !password) {
       return res.status(400).json({
@@ -80,12 +86,21 @@ export const login = async (req, res) => {
     // Find user and include password field
     const user = await User.findOne({ email }).select("+password");
 
+//     console.log("User found:", Boolean(user));
+// console.log("Stored password exists:", Boolean(user?.password));
     if (!user) {
       return res.status(401).json({
         success: false,
         message: "Invalid email or password"
       });
     }
+
+    if (!user.password) {
+  return res.status(401).json({
+    success: false,
+    message: "This account uses Google login. Please continue with Google.",
+  });
+}
 
     // Check password
     const isPasswordMatch = await user.comparePassword(password);
@@ -193,6 +208,151 @@ export const updateProfile = async (req, res) => {
     });
   }
 };
+
+
+
+// @desc    Request a password reset email
+// @route   POST /api/auth/forgot-password
+export const forgotPassword = async (req, res) => {
+  let user;
+
+  try {
+    const email = req.body.email?.trim().toLowerCase();
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide your email address.",
+      });
+    }
+
+    user = await User.findOne({ email });
+
+    // Return the same response whether the email exists or not.
+    const genericMessage =
+      "If an account exists for that email, a password reset link will be sent.";
+
+    if (!user) {
+      return res.status(200).json({
+        success: true,
+        message: genericMessage,
+      });
+    }
+
+    // Generate a cryptographically secure, single-use token.
+    const resetToken = crypto.randomBytes(32).toString("hex");
+
+    // Store only the token hash in MongoDB.
+    user.resetPasswordToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+
+    user.resetPasswordExpire = new Date(Date.now() + 15 * 60 * 1000);
+
+    await user.save({ validateBeforeSave: false });
+
+    const frontendUrl = process.env.FRONTEND_URL;
+
+    if (!frontendUrl) {
+      throw new Error("FRONTEND_URL is not configured.");
+    }
+
+    const resetUrl =
+      `${frontendUrl.replace(/\/$/, "")}/reset-password/${resetToken}`;
+
+    try {
+      await sendPasswordResetEmail(user.email, resetUrl);
+    } catch (emailError) {
+      // Invalidate the token if sending the email fails.
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpire = undefined;
+      await user.save({ validateBeforeSave: false });
+
+      throw emailError;
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: genericMessage,
+    });
+  } catch (error) {
+    console.error("Forgot password error:", error.message);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to process your request right now. Please try again later.",
+    });
+  }
+};
+
+
+// @desc    Reset password using a valid token
+// @route   POST /api/auth/reset-password/:token
+export const resetPassword = async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { password, confirmPassword } = req.body;
+
+    if (!token || !/^[a-f0-9]{64}$/i.test(token)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or expired reset link.",
+      });
+    }
+
+    if (!password || password.length < 8) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 8 characters long.",
+      });
+    }
+
+    if (password !== confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Passwords do not match.",
+      });
+    }
+
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(token)
+      .digest("hex");
+
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpire: { $gt: new Date() },
+    }).select("+password");
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or expired reset link. Please request a new one.",
+      });
+    }
+
+    // The User model's pre-save hook hashes this password with bcrypt.
+    user.password = password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Password reset successful. You can now log in.",
+    });
+  } catch (error) {
+    console.error("Reset password error:", error.message);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to reset your password right now. Please try again.",
+    });
+  }
+};
+
 
 
 

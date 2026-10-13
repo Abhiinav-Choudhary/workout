@@ -17,7 +17,8 @@ import AdminOrders from "./pages/AdminOrder";
 import AdminLayout from "./components/AdminLayout";
 import AdminProducts from "./pages/AdminProducts";
 import Checkout from "./pages/Checkout";
-
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 
 const App = () => {
@@ -28,6 +29,8 @@ const App = () => {
         {/* Routes WITHOUT Header & Footer */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+<Route path="/reset-password/:token" element={<ResetPassword />} />
    
 <Route path="/admin" element={<AdminLayout />}>
   <Route index element={<Navigate to="dashboard" replace />} />

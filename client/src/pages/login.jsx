@@ -31,6 +31,7 @@ const googleLogin = async () => {
     const token = await user.getIdToken(true);
 
     // console.log("FRESH TOKEN:", token);
+    
 
     const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/google`, {
       method: "POST",
@@ -79,7 +80,7 @@ const googleLogin = async () => {
     }
 
     // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       setError("Please enter a valid email address");
       setLoading(false);
@@ -88,6 +89,8 @@ const googleLogin = async () => {
 
     try {
       // TODO: Replace with your actual API call
+//       console.log("Login email:", formData.email);
+// console.log("Password exists:", Boolean(formData.password));
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
         method: "POST",
         headers: {
