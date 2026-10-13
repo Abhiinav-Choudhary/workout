@@ -18,8 +18,8 @@ connectDB();
 const app = express();
 
 app.use(cors({
-  // origin: "https://workout-mauve.vercel.app", // your frontend
-  origin: "http://localhost:5173", // your frontend
+  origin: "https://workout-mauve.vercel.app", // your frontend
+  // origin: "http://localhost:5173", // your frontend
   credentials: true
 }));
 // https://workout-mauve.vercel.app
