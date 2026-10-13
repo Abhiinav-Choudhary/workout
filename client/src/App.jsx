@@ -28,17 +28,14 @@ const App = () => {
         {/* Routes WITHOUT Header & Footer */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-     <Route path="/admin" element={<AdminLayout />}>
-
-  {/* Default route */}
-  <Route index element={<AdminDashboard />} />
-
-  {/* Relative paths */}
+   
+<Route path="/admin" element={<AdminLayout />}>
+  <Route index element={<Navigate to="dashboard" replace />} />
   <Route path="dashboard" element={<AdminDashboard />} />
   <Route path="orders" element={<AdminOrders />} />
   <Route path="products" element={<AdminProducts />} />
-
 </Route>
+
 
         {/* Routes WITH Header & Footer */}
         <Route element={<HeaderFooterLayout />}>

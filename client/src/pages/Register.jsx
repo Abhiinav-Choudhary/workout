@@ -7,10 +7,9 @@ const Register = () => {
     name: "",
     email: "",
     password: "",
-    confirmPassword: ""
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  // const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -45,7 +44,7 @@ const Register = () => {
     setSuccess(false);
 
     // Validation
-    if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
+    if (!formData.name || !formData.email || !formData.password) {
       setError("Please fill in all fields");
       setLoading(false);
       return;
@@ -61,12 +60,6 @@ const Register = () => {
     const passwordError = validatePassword(formData.password);
     if (passwordError) {
       setError(passwordError);
-      setLoading(false);
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
       setLoading(false);
       return;
     }
@@ -261,30 +254,6 @@ const Register = () => {
                   </p>
                 </div>
               )}
-            </div>
-
-            {/* Confirm Password Field */}
-            <div>
-              <label className="block text-gray-300 font-medium mb-2">Confirm Password</label>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                <input
-                  type={showConfirmPassword ? "text" : "password"}
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Confirm your password"
-                  className="w-full pl-12 pr-12 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition"
-                >
-                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                </button>
-              </div>
             </div>
 
             {/* Terms Checkbox */}

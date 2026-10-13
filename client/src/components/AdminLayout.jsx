@@ -1,80 +1,61 @@
-import React from "react";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import {
-  LayoutDashboard,
-  ShoppingCart,
-  Package,
-  Users,
-  LogOut
-} from "lucide-react";
+import React, { useState } from "react";
+import { Outlet } from "react-router-dom";
+import { Menu, Dumbbell } from "lucide-react";
+import AdminSidebar from "../components/AdminSidebar";
 
 const AdminLayout = () => {
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/login");
-  };
-
-  const linkClass =
-    "flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100";
+  const closeSidebar = () => setMobileOpen(false);
 
   return (
+    <div className="min-h-screen bg-gray-50 lg:flex">
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <button
+          type="button"
+          aria-label="Close navigation menu"
+          onClick={closeSidebar}
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
+        />
+      )}
 
-    <div className="flex min-h-screen bg-gray-50">
+      {/* Shared sidebar */}
+      <AdminSidebar
+        mobileOpen={mobileOpen}
+        onClose={closeSidebar}
+      />
 
-      {/* SIDEBAR */}
+      {/* Main area */}
+      <div className="min-w-0 flex-1">
+        {/* Mobile header */}
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-200 bg-white/95 px-4 backdrop-blur-md lg:hidden">
+          <button
+            type="button"
+            onClick={() => setMobileOpen(true)}
+            aria-label="Open navigation menu"
+            className="rounded-xl p-2 text-gray-700 transition hover:bg-gray-100"
+          >
+            <Menu size={23} />
+          </button>
 
-      <aside className="w-64 bg-white shadow-md p-6">
+          <div className="flex items-center gap-2">
+            <Dumbbell size={21} className="text-red-600" />
+            <span className="text-sm font-black tracking-wide text-gray-950">
+              FLEX<span className="text-red-600">FORGE</span>
+            </span>
+          </div>
 
-        <h2 className="text-2xl font-bold text-red-600 mb-8">
-          FlexForge Admin
-        </h2>
+          <div className="w-10" />
+        </header>
 
-        <nav className="flex flex-col gap-2">
-
-          <NavLink to="/admin" className={linkClass}>
-            <LayoutDashboard size={20}/>
-            Dashboard
-          </NavLink>
-
-          <NavLink to="/admin/orders" className={linkClass}>
-            <ShoppingCart size={20}/>
-            Orders
-          </NavLink>
-
-          <NavLink to="/admin/products" className={linkClass}>
-            <Package size={20}/>
-            Products
-          </NavLink>
-
-          
-    <button
-          onClick={handleLogout}
-          className="flex items-center gap-2 mt-10 text-red-500"
-        >
-          <LogOut size={18}/>
-          Logout
-        </button>
-        </nav>
-
-    
-      </aside>
-
-      {/* PAGE CONTENT */}
-
-      <main className="flex-1 p-8">
-
-        <Outlet />
-
-      </main>
-
+        {/* Current admin page */}
+        <main className="min-w-0">
+          <Outlet />
+        </main>
+      </div>
     </div>
-
   );
-
 };
 
 export default AdminLayout;
