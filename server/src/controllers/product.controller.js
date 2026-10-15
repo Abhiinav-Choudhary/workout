@@ -1,5 +1,6 @@
 import Product from "../models/product.model.js";
 import cloudinary from "../utils/cloudinary.js";
+import { invalidateEquipmentCache } from "../utils/invalidateEquipmentCache.js";
 
 export const createProduct = async (req, res) => {
   try {
@@ -29,6 +30,8 @@ export const createProduct = async (req, res) => {
       ...req.body,
       images,
     });
+
+    await invalidateEquipmentCache();
 
     res.status(201).json({ success: true, product });
 
@@ -229,6 +232,8 @@ export const deleteProduct = async (req, res) => {
     // Delete product from database
     await Product.findByIdAndDelete(req.params.id);
 
+    await invalidateEquipmentCache();
+
     res.json({ 
       success: true, 
       message: "Product deleted successfully" 
@@ -278,6 +283,8 @@ export const updateProduct = async (req, res) => {
       { ...req.body, images },
       { new: true, runValidators: true }
     );
+
+    await invalidateEquipmentCache();
 
     res.json({ success: true, product: updatedProduct });
 
