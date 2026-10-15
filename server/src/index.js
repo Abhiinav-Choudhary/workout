@@ -10,10 +10,12 @@ import appointmentRoutes from "./routes/appointment.routes.js";
 import trainingPlanRoutes from "./routes/training.routes.js";
 import workoutRoutes from "./routes/workoutRoutes.js";
 import adminRoutes from "./routes/admin.routes.js";
-
+import { generalLimiter } from "./middleware/rateLimiter.js";
 
 dotenv.config();
 connectDB();
+
+app.set("trust proxy", true)
 
 const app = express();
 
@@ -25,6 +27,8 @@ app.use(cors({
 // https://workout-mauve.vercel.app
 app.use(express.json());
 app.use(express.urlencoded({extended:true}))
+
+app.use("/api" , generalLimiter);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
