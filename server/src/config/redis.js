@@ -3,7 +3,6 @@ import Redis from "ioredis";
 
 // const redis = new Redis("redis://127.0.0.1:6379");
 
-import Redis from "ioredis";
 
 const redisUrl = process.env.REDIS_URL;
 
