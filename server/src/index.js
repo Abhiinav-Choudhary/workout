@@ -15,9 +15,11 @@ import { generalLimiter } from "./middleware/rateLimiter.js";
 dotenv.config();
 connectDB();
 
+const app = express();
+
+
 app.set("trust proxy", true)
 
-const app = express();
 
 app.use(cors({
   origin: "https://workout-mauve.vercel.app", // your frontend
