@@ -18,7 +18,9 @@ connectDB();
 const app = express();
 
 
-app.set("trust proxy", true)
+if (process.env.NODE_ENV === "production") {
+  app.set("trust proxy", 1);
+}
 
 
 app.use(cors({
@@ -46,6 +48,37 @@ app.use("/api/workout", workoutRoutes);
 
 
 app.use("/api/admin", adminRoutes);
+
+
+app.use((err, req, res, next) => {
+  const redisErrorCodes = [
+    "ECONNREFUSED",
+    "ETIMEDOUT",
+    "ECONNRESET",
+    "NR_CLOSED",
+  ];
+
+  const isRedisUnavailable =
+    redisErrorCodes.includes(err?.code) ||
+    /redis.*(connection|connect|closed|timeout)|(?:connection|connect|closed|timeout).*redis/i
+      .test(err?.message ?? "");
+
+  if (isRedisUnavailable) {
+    console.error("Rate-limit store unavailable:", err.message);
+
+    return res.status(503).json({
+      success: false,
+      message: "Service temporarily unavailable. Please try again shortly.",
+    });
+  }
+
+  console.error(err);
+  return res.status(500).json({
+    success: false,
+    message: "Internal server error.",
+  });
+});
+
 app.listen(process.env.PORT, () => {
     console.log(`Server running on port ${process.env.PORT}`);
 });
